@@ -4,7 +4,7 @@ import random
 pygame.font.init()
 
 # GLOBALS VARS
-s_width = 800
+s_width = 1440
 s_height = 800
 play_width = 600  # meaning 300 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 20 height per block
