@@ -6,7 +6,7 @@ pygame.font.init()
 # GLOBALS VARS
 s_width = 800
 s_height = 700
-play_width = 300  # meaning 300 // 10 = 30 width per block
+play_width = 600  # meaning 600 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 20 height per block
 block_size = 30
 
@@ -26,7 +26,7 @@ def main_menu():
 
 
 def create_grid(locked_positions = {}):
-    grid = [[(0, 0, 0) for _ in range(10)] for _ in range(20)]
+    grid = [[(0, 0, 0) for _ in range(20)] for _ in range(20)]
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             if (j, i) in locked_positions:
