@@ -147,26 +147,36 @@ shapes = [[['.....',
       '.....']]
     ]
 
-default_shape_positions = [[2,3], [6,3], [11,4], 
+default_shape_positions_player1 = [[2,3], [6,3], [11,4], 
                           [2,7], [7,6],[11,6],
                           [2,9],[7,11],[11,10],
                           [2,12],[7,15],[11,15],
                           [2,15],[5,17],[10,19],
                           [3,20],[7,21],[10,19],
                           [2,22],[6,25],[11,25]]
-                        
 
+default_shape_positions_player2 = [[36,3], [40,3], [45,4], 
+                          [36,7], [41,6],[45,6],
+                          [36,9],[41,11],[45,10],
+                          [36,12],[41,15],[45,15],
+                          [36,15],[39,17],[44,19],
+                          [37,20],[41,21],[44,19],
+                          [36,22],[40,25],[45,25]]
+
+
+
+                    
 # shapes = [S,I,O]
 
 shape_colors = [(0, 255, 0), (255, 0, 0), (0, 255, 255),
                     (255, 255, 0), (255, 165, 0), (0, 0, 255), (128, 0, 128)]
 
 class Block(object):
-    def __init__(self, x, y, shape):
+    def __init__(self, x, y, shape,color):
         self.x = x
         self.y = y
         self.shape = shape
-        self.color = (0, 255, 0)
+        self.color = color
         self.rotation = 0
 
     
@@ -287,10 +297,22 @@ def main_menu():
 
 
     for i in range(21):
-        current_piece = Block(default_shape_positions[i][0],default_shape_positions[i][1], shapes[i])
+        current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
 
         shape_pos = convert_shape_format(current_piece)
  
+        for i in range(len(shape_pos)):
+                (x,y) = shape_pos[i]
+
+                ''' Remove this condition to check it '''
+
+                if y>-1:
+                    grid[y][x] = current_piece.color
+    
+    for i in range(21):
+        current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
+
+        shape_pos = convert_shape_format(current_piece)
         for i in range(len(shape_pos)):
                 (x,y) = shape_pos[i]
 
