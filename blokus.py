@@ -2,123 +2,161 @@
 
 import pygame
 import random
-import block
 
 pygame.font.init()
 
 # GLOBALS VARS
 s_width = 1440
-s_height = 800
+s_height = 780
 play_width = 600  # meaning 300 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 20 height per block
 block_size = 30
 
 top_left_x = (s_width - play_width) // 2  # top left x position of play area
-top_left_y = s_height - (play_height + 100)  # top left y position of play area
+top_left_y = s_height - (play_height + 90)  # top left y position of play area
 
 play_border = pygame.Rect(top_left_x, top_left_y, play_width, play_height)
-S = [['.....',
+
+shapes = [[['.....',
     '......',
     '..00..',
     '.00...',
-    '.....'],
-    ['.....',
-    '..0..',
-    '..00.',
-    '...0.',
-    '.....']]
+    '.....']],
 
-Z = [['.....',
-    '.....',
-    '.00..',
-    '..00.',
-    '.....'],
-    ['.....',
-    '..0..',
-    '.00..',
-    '.0...',
-    '.....']]
+    [['.....',
+    '......',
+    '..000.',
+    '.00...',
+    '.....']],
 
-I = [['..0..',
-    '..0..',
-    '..0..',
-    '..0..',
-    '.....'],
-    ['.....',
-    '0000.',
-    '.....',
-    '.....',
-    '.....']]
-
-O = [['.....',
-    '.....',
-    '.00..',
-    '.00..',
-    '.....']]
-
-J = [['.....',
-    '.0...',
+    [['.....',
     '.000.',
     '.....',
-    '.....'],
-    ['.....',
-    '..00.',
-    '..0..',
-    '..0..',
-    '.....'],
-    ['.....',
     '.....',
-    '.000.',
-    '...0.',
-    '.....'],
-    ['.....',
-    '..0..',
-    '..0..',
-    '.00..',
-    '.....']]
+    '.....']],
 
-L = [['.....',
+    [['.....',
+    '.0000',
+    '.....',
+    '.....',
+    '.....']],
+
+    [['.....',
+    '.....',
+    '.00..',
+    '.00..',
+    '.....']],
+
+    [['.....',
     '...0.',
     '.000.',
     '.....',
-    '.....'],
-    ['.....',
-    '..0..',
-    '..0..',
-    '..00.',
-    '.....'],
-    ['.....',
-    '.....',
-    '.000.',
-    '.0...',
-    '.....'],
-    ['.....',
-    '.00..',
-    '..0..',
-    '..0..',
-    '.....']]
+    '.....']],
 
-T = [['.....',
+    [['.....',
+    '.0...',
+    '.0000',
+    '.....',
+    '.....']],
+
+    [['.0...',
+    '.0...',
+    '.000.',
+    '.....',
+    '.....']],
+
+    [['..0..',
+    '..0..',
+    '..0..',
+    '..0..',
+    '..0..']],
+
+    [['.....',
     '..0..',
     '.000.',
     '.....',
-    '.....'],
-    ['.....',
+    '.....']],
+
+    [['..0..',
     '..0..',
+    '.000.',
+    '.....',
+    '.....']],
+
+    [['.....',
+    '.0...',
+    '.00..',
+    '.00..',
+    '.....']],
+
+    [['.....',
+    '..0..',
+    '.000.',
+    '..0..',
+    '.....']],
+
+    #14
+
+    [['.....',
+    '.....',
     '..00.',
-    '..0..',
-    '.....'],
-    ['.....',
+    '...0.',
+    '.....']],
+
+    #15
+
+    [['0....',
     '.....',
-    '.000.',
-    '..0..',
-    '.....'],
-    ['.....',
-    '..0..',
+    '.....',
+    '.....',
+    '.....']],
+
+    [['00...',
+    '.....',
+    '.....',
+    '.....',
+    '.....']],
+
+    [['.....',
+    '..00.',
     '.00..',
     '..0..',
-    '.....']]
-shapes = [S, Z, I, O, J, L, T]
+    '.....']],
+
+    [['.....',
+    '..00.',
+    '..0..',
+    '..00.',
+    '.....']],
+
+    [['.....',
+      '..00.',
+      '.00..',
+      '.0...',
+      '.....']],
+    [['.....',
+      '...0.',
+      '.000.',
+      '.0...',
+      '.....']],
+
+    [['.0...',
+      '0000.',
+      '.....',
+      '.....',
+      '.....']]
+    ]
+
+default_shape_positions = [[2,3], [6,3], [11,4], 
+                          [2,7], [7,6],[11,6],
+                          [2,9],[7,11],[11,10],
+                          [2,12],[7,15],[11,15],
+                          [2,15],[5,17],[10,19],
+                          [3,20],[7,21],[10,19],
+                          [2,22],[6,25],[11,25]]
+                        
+
+# shapes = [S,I,O]
 
 shape_colors = [(0, 255, 0), (255, 0, 0), (0, 255, 255),
                     (255, 255, 0), (255, 165, 0), (0, 0, 255), (128, 0, 128)]
@@ -128,14 +166,14 @@ class Block(object):
         self.x = x
         self.y = y
         self.shape = shape
-        self.color = shape_colors[shapes.index(shape)]
+        self.color = (0, 255, 0)
         self.rotation = 0
 
     
 ''' Returns a random block object '''
 
 def get_shape():  
-    return Block(5, 0, random.choice(shapes))
+    return Block(10, 10, random.choice(shapes))
 
 
 def convert_shape_format(shape):
@@ -155,25 +193,26 @@ def convert_shape_format(shape):
             current line in the shape format. For example 
             a line a would be: '...0...' and each character would be a column
             '''
+            format = shape.shape[shape.rotation % len(shape.shape)]
 
             row = list(line)
             for j, column in enumerate(row):
                 if column == '0':
                         positions.append((shape.x + j, shape.y + i))
-
+    
     for i, pos in enumerate(positions):
             positions[i] = (pos[0] - 2, pos[1] - 4)  # test this offset
     
-    print(positions)
-
+    
     return positions
+
 
 
 ''' Creates the matrix 'grid' that consists of hex colors '''
 
 def create_grid(locked_positions = {}):
 
-    grid = [[(0, 0, 0) for _ in range(20)] for _ in range(20)]
+    grid = [[(0, 0, 0) for _ in range(48)] for _ in range(26)]
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
@@ -187,7 +226,6 @@ def draw_grid(surface, grid):
 
     surface.fill((0, 0, 0))
 
-    
     sx = top_left_x
     sy = top_left_y
 
@@ -204,8 +242,8 @@ def draw_grid(surface, grid):
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-                pygame.draw.rect(surface, grid[i][j], (top_left_x + j*block_size,
-                                                    top_left_y + i*block_size, block_size, block_size), 0)
+                pygame.draw.rect(surface, grid[i][j], (j*block_size,
+                                                    i*block_size, block_size, block_size), 0)
 
     ''' Draws a rectangle the red border '''
     pygame.draw.rect(surface, (255, 0, 0), (top_left_x,
@@ -216,16 +254,27 @@ def draw_grid(surface, grid):
 
     for i in range(len(grid)):
         ''' draws horizontal lines '''
-        pygame.draw.line(surface, (128, 128, 128), (sx, sy + i*block_size),
-                         (sx+play_width, sy + i*block_size))  
+        pygame.draw.line(surface, (128, 128, 128), (0, i*block_size),
+                         (1440, i*block_size))
+                        
         for j in range(len(grid[i]) + 1):
-            pygame.draw.line(surface, (128, 128, 128), (sx + j *
-                                                        block_size, sy), (sx+j*block_size, sy + play_height))
+            pygame.draw.line(surface, (128, 128, 128), (j *
+                                                        block_size, 0), (j*block_size, 780))
 
     ''' Draws the last vertical line of the grid '''
 
     pygame.draw.line(surface, (128, 128, 128), (sx, sy + len(grid)*block_size),
                          (sx+play_width, sy + len(grid)*block_size)) 
+
+    ''' Draws the neon grid for the play area '''
+
+    for i in range(20):
+        ''' Draws the horizontal lines of the grid '''
+        pygame.draw.line(surface, (153, 255, 51), (sx, sy + i*block_size),
+                         (sx+play_width, sy+ i*block_size))
+        for j in range(21):
+            pygame.draw.line(surface, (153, 255, 51), (sx + j *
+                                                        block_size, sy), (sx + j*block_size, sy + play_height))
 
     pygame.display.update()
 
@@ -235,7 +284,23 @@ def main_menu():
     grid = create_grid()
     win = pygame.display.set_mode((s_width, s_height))
     pygame.display.set_caption('Blokus')
+
+
+    for i in range(21):
+        current_piece = Block(default_shape_positions[i][0],default_shape_positions[i][1], shapes[i])
+
+        shape_pos = convert_shape_format(current_piece)
+ 
+        for i in range(len(shape_pos)):
+                (x,y) = shape_pos[i]
+
+                ''' Remove this condition to check it '''
+
+                if y>-1:
+                    grid[y][x] = current_piece.color
+
     draw_grid(win,grid)
+
 
 while True:
     main_menu()
