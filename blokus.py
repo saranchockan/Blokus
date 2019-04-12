@@ -2,6 +2,7 @@
 
 import pygame
 import random
+import math
 
 pygame.font.init()
 
@@ -95,15 +96,11 @@ shapes = [[['.....',
     '..0..',
     '.....']],
 
-    #14
-
     [['.....',
     '.....',
     '..00.',
     '...0.',
     '.....']],
-
-    #15
 
     [['0....',
     '.....',
@@ -162,17 +159,9 @@ default_shape_positions_player2 = [[36,3], [40,3], [45,4],
                           [36,15],[39,17],[44,19],
                           [37,20],[41,21],[44,19],
                           [36,22],[40,25],[45,25]]
-
-
-
-                    
-# shapes = [S,I,O]
-
-shape_colors = [(0, 255, 0), (255, 0, 0), (0, 255, 255),
-                    (255, 255, 0), (255, 165, 0), (0, 0, 255), (128, 0, 128)]
-
+                  
 class Block(object):
-    def __init__(self, x, y, shape,color):
+    def __init__(self, x, y, shape, color):
         self.x = x
         self.y = y
         self.shape = shape
@@ -295,7 +284,6 @@ def main_menu():
     win = pygame.display.set_mode((s_width, s_height))
     pygame.display.set_caption('Blokus')
 
-
     for i in range(21):
         current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
 
@@ -304,10 +292,7 @@ def main_menu():
         for i in range(len(shape_pos)):
                 (x,y) = shape_pos[i]
 
-                ''' Remove this condition to check it '''
-
-                if y>-1:
-                    grid[y][x] = current_piece.color
+                grid[math.floor(y)][math.floor(x)] = current_piece.color
     
     for i in range(21):
         current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
@@ -316,10 +301,7 @@ def main_menu():
         for i in range(len(shape_pos)):
                 (x,y) = shape_pos[i]
 
-                ''' Remove this condition to check it '''
-
-                if y>-1:
-                    grid[y][x] = current_piece.color
+                grid[y][x] = current_piece.color
 
     draw_grid(win,grid)
 
