@@ -280,32 +280,51 @@ def draw_grid(surface, grid):
 
 
 def main_menu():
+
+    running = True
     grid = create_grid()
     win = pygame.display.set_mode((s_width, s_height))
     pygame.display.set_caption('Blokus')
 
-    for i in range(21):
-        current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
+    down  = False
 
-        shape_pos = convert_shape_format(current_piece)
- 
-        for i in range(len(shape_pos)):
-                (x,y) = shape_pos[i]
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:            
+                    print("Mouse Down")
+                    down = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                down = False
+                print("Mouse Up")
 
-                grid[math.floor(y)][math.floor(x)] = current_piece.color
+            elif event.type == pygame.MOUSEMOTION:
+                if down: 
+                    print("Mouse Drag")             
+        
+        for i in range(21):
+            current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
+
+            shape_pos = convert_shape_format(current_piece)
     
-    for i in range(21):
-        current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
+            for i in range(len(shape_pos)):
+                    (x,y) = shape_pos[i]
 
-        shape_pos = convert_shape_format(current_piece)
-        for i in range(len(shape_pos)):
-                (x,y) = shape_pos[i]
+                    grid[math.floor(y)][math.floor(x)] = current_piece.color
+        
+        for i in range(21):
+            current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
 
-                grid[y][x] = current_piece.color
+            shape_pos = convert_shape_format(current_piece)
+            for i in range(len(shape_pos)):
+                    (x,y) = shape_pos[i]
 
-    draw_grid(win,grid)
+                    grid[y][x] = current_piece.color
+
+        draw_grid(win,grid)
 
 
-while True:
-    main_menu()
+main_menu()
 
