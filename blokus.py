@@ -162,6 +162,8 @@ default_shape_positions_player2 = [[36,3], [40,3], [45,4],
 
 block_rectangles = []
 
+blocks = [None] * 42
+
 offset_grid = [[[0,0] for _ in range(48)] for _ in range(26)]
 
 
@@ -172,14 +174,14 @@ class Block(object):
         self.shape = shape
         self.color = color
         self.rotation = 0
+        self.positions = convert_shape_format(x,y,shape[0])
 
 
-def convert_shape_format(shape):
+def convert_shape_format(x, y, format):
     positions = []
     '''
     Rotation determines the current position/format of the block
     '''
-    format = shape.shape[shape.rotation % len(shape.shape)]
 
     '''
     Loops through every row of the current shape format 
@@ -191,12 +193,11 @@ def convert_shape_format(shape):
             current line in the shape format. For example 
             a line a would be: '...0...' and each character would be a column
             '''
-            format = shape.shape[shape.rotation % len(shape.shape)]
 
             row = list(line)
             for j, column in enumerate(row):
                 if column == '0':
-                        positions.append((shape.x + j, shape.y + i))
+                        positions.append((x + j, y + i))
     
     for i, pos in enumerate(positions):
             positions[i] = (pos[0] - 2, pos[1] - 4)  # test this offset
@@ -209,6 +210,7 @@ def create_rectangles(grid):
         for j in range(len(grid[i])):
                 block_rectangles.append(pygame.Rect(j*block_size,
                                                     i*block_size, block_size, block_size))
+
 
 ''' Creates the matrix 'grid' that consists of hex colors '''
 
@@ -327,7 +329,6 @@ def main_menu():
 
                             if grid[gy][gx] != (0,0,0):
                                 valid_drag = True
-                                print(gx,gy)
 
                                 offset_x = event.pos[0] - rect.x
                                 offset_y = event.pos[1] - rect.y
@@ -338,11 +339,21 @@ def main_menu():
                                 offset_grid[gy][gx][1] = offset_y
                                 #print(event.pos)  
 
-                                
+                                for block in blocks:
+                                    if (gx,gy) in block.positions:
+                                        print("Fuck")
+                                        print(gx,gy)
+                                        print(block.positions)
+                                        for (a,b) in block.positions:
+                                            # print(offset_x,offset_y)
+                                            offset_grid[b][a][0] = offset_x
+                                            offset_grid[b][a][1] = offset_y
+                                '''
                                 for i in range(len(offset_grid)):
                                     for j in range(len(offset_grid[i])):
                                         if offset_grid[i][j] != [0,0]:
-                                            print(offset_grid[i][j])
+                                            #print(offset_grid[i][j])
+                                '''
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 down = False
@@ -359,19 +370,31 @@ def main_menu():
 
                     offset_grid[gy][gx][0] = offset_x
                     offset_grid[gy][gx][1] = offset_y
-                    
+
+                    for block in blocks:
+                        if (gx,gy) in block.positions:
+                            print("Fuck")
+                            print(gx,gy)
+                            print(block.positions)
+                            for (a,b) in block.positions:
+                                # print(offset_x,offset_y)
+                                offset_grid[b][a][0] = offset_x
+                                offset_grid[b][a][1] = offset_y
+                    '''
                     for i in range(len(offset_grid)):
                         for j in range(len(offset_grid[i])):
                             if offset_grid[i][j] != [0,0]:
                                 print(offset_grid[i][j])
+                    '''
                     
 
 
         
         for i in range(21):
             current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
+            blocks[i] = current_piece
 
-            shape_pos = convert_shape_format(current_piece)
+            shape_pos = convert_shape_format(current_piece.x,current_piece.y,current_piece.shape[0])
     
             for i in range(len(shape_pos)):
                     (x,y) = shape_pos[i]
@@ -380,8 +403,9 @@ def main_menu():
         
         for i in range(21):
             current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
+            blocks[i+21] = current_piece
 
-            shape_pos = convert_shape_format(current_piece)
+            shape_pos = convert_shape_format(current_piece.x,current_piece.y,current_piece.shape[0])
             for i in range(len(shape_pos)):
                     (x,y) = shape_pos[i]
 
