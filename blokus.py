@@ -159,7 +159,12 @@ default_shape_positions_player2 = [[36,3], [40,3], [45,4],
                           [36,15],[39,17],[44,19],
                           [37,20],[41,21],[44,19],
                           [36,22],[40,25],[45,25]]
-                  
+
+block_rectangles = []
+
+offset_grid = [[[0,0] for _ in range(48)] for _ in range(26)]
+
+
 class Block(object):
     def __init__(self, x, y, shape, color):
         self.x = x
@@ -167,12 +172,6 @@ class Block(object):
         self.shape = shape
         self.color = color
         self.rotation = 0
-
-    
-''' Returns a random block object '''
-
-def get_shape():  
-    return Block(10, 10, random.choice(shapes))
 
 
 def convert_shape_format(shape):
@@ -205,11 +204,15 @@ def convert_shape_format(shape):
     
     return positions
 
-
+def create_rectangles(grid):
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+                block_rectangles.append(pygame.Rect(j*block_size,
+                                                    i*block_size, block_size, block_size))
 
 ''' Creates the matrix 'grid' that consists of hex colors '''
 
-def create_grid(locked_positions = {}):
+def create_grid(surface, locked_positions = {}):
 
     grid = [[(0, 0, 0) for _ in range(48)] for _ in range(26)]
 
@@ -218,7 +221,10 @@ def create_grid(locked_positions = {}):
             if (j, i) in locked_positions:
                 c = locked_positions[(j, i)]
                 grid[i][j] = c
+
     return grid
+
+
 
 
 def draw_grid(surface, grid):
@@ -238,11 +244,17 @@ def draw_grid(surface, grid):
     The below function draws the grid and colors 
     each rectangle in accordance to the color in each key of grid.
     '''
-
+    ''' Draws the blocks '''
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-                pygame.draw.rect(surface, grid[i][j], (j*block_size,
-                                                    i*block_size, block_size, block_size), 0)
+
+                if grid[i][j] != (0,0,0):
+                    pygame.draw.rect(surface, grid[i][j], (j*block_size + offset_grid[i][j][0],
+                                                        i*block_size + offset_grid[i][j][1], block_size, block_size), 0)
+
+                    block_rectangles[i+j] = pygame.Rect(j*block_size + offset_grid[i][j][0],
+                                                        i*block_size + offset_grid[i][j][1], block_size, block_size)
+                                                    
 
     ''' Draws a rectangle the red border '''
     pygame.draw.rect(surface, (255, 0, 0), (top_left_x,
@@ -280,13 +292,21 @@ def draw_grid(surface, grid):
 
 
 def main_menu():
-
-    running = True
-    grid = create_grid()
     win = pygame.display.set_mode((s_width, s_height))
+    running = True
+    grid = create_grid(win)
+    create_rectangles(grid)
     pygame.display.set_caption('Blokus')
-
     down  = False
+    valid_drag = False
+
+    gx = 0
+    gy = 0
+    offset_x = 0
+    offset_y = 0
+
+    rect_x = 0
+    rect_y = 0
 
     while running:
         for event in pygame.event.get():
@@ -296,13 +316,57 @@ def main_menu():
                 if event.button == 1:            
                     print("Mouse Down")
                     down = True
+                    for rect in block_rectangles:
+                        if rect.collidepoint(event.pos):
+                            #print(rect.x)
+                            rect_x = rect.x
+                            rect_y = rect.y
+                            
+                            gx = int(rect.x/block_size)
+                            gy = int(rect.y/block_size)
+
+                            if grid[gy][gx] != (0,0,0):
+                                valid_drag = True
+                                print(gx,gy)
+
+                                offset_x = event.pos[0] - rect.x
+                                offset_y = event.pos[1] - rect.y
+
+                                # print(offset_x,offset_y)
+
+                                offset_grid[gy][gx][0] = offset_x
+                                offset_grid[gy][gx][1] = offset_y
+                                #print(event.pos)  
+
+                                
+                                for i in range(len(offset_grid)):
+                                    for j in range(len(offset_grid[i])):
+                                        if offset_grid[i][j] != [0,0]:
+                                            print(offset_grid[i][j])
+
             elif event.type == pygame.MOUSEBUTTONUP:
                 down = False
+                valid_drag = False
                 print("Mouse Up")
 
             elif event.type == pygame.MOUSEMOTION:
-                if down: 
-                    print("Mouse Drag")             
+                if down and valid_drag: 
+                    print("Mouse Drag") 
+                    offset_x = event.pos[0] - rect_x
+                    offset_y = event.pos[1] - rect_y
+
+                    # print(offset_x,offset_y)
+
+                    offset_grid[gy][gx][0] = offset_x
+                    offset_grid[gy][gx][1] = offset_y
+                    
+                    for i in range(len(offset_grid)):
+                        for j in range(len(offset_grid[i])):
+                            if offset_grid[i][j] != [0,0]:
+                                print(offset_grid[i][j])
+                    
+
+
         
         for i in range(21):
             current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
