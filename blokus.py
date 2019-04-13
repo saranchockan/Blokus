@@ -302,6 +302,8 @@ def main_menu():
     down  = False
     valid_drag = False
 
+    collided_rects = []
+
     gx = 0
     gy = 0
     offset_x = 0
@@ -320,44 +322,26 @@ def main_menu():
                     down = True
                     for rect in block_rectangles:
                         if rect.collidepoint(event.pos):
+                            collided_rects.append(rect)
                             #print(rect.x)
                             rect_x = rect.x
                             rect_y = rect.y
                             
                             gx = int(rect.x/block_size)
                             gy = int(rect.y/block_size)
-                            
-                            if grid[gy][gx] != (0,0,0):
-                                valid_drag = True
-                            '''
+
                             if grid[gy][gx] != (0,0,0):
                                 valid_drag = True
 
-                                offset_x = event.pos[0] - rect.x
-                                offset_y = event.pos[1] - rect.y
-
-                                # print(offset_x,offset_y)
-
-                                offset_grid[gy][gx][0] = offset_x
-                                offset_grid[gy][gx][1] = offset_y
-                                #print(event.pos)  
-
-                                for block in blocks:
-                                    if (gx,gy) in block.positions:
-                                        print("Fuck")
-                                        print(gx,gy)
-                                        print(block.positions)
-                                        for (a,b) in block.positions:
-                                            # print(offset_x,offset_y)
-                                            offset_grid[b][a][0] = offset_x
-                                            offset_grid[b][a][1] = offset_y
-                            '''
 
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 down = False
                 valid_drag = False
                 print("Mouse Up")
+
+
+
 
             elif event.type == pygame.MOUSEMOTION:
                 if down and valid_drag: 
@@ -372,19 +356,13 @@ def main_menu():
 
                     for block in blocks:
                         if (gx,gy) in block.positions:
-                            print("Fuck")
                             print(gx,gy)
                             print(block.positions)
                             for (a,b) in block.positions:
                                 # print(offset_x,offset_y)
                                 offset_grid[b][a][0] = offset_x
                                 offset_grid[b][a][1] = offset_y
-                    '''
-                    for i in range(len(offset_grid)):
-                        for j in range(len(offset_grid[i])):
-                            if offset_grid[i][j] != [0,0]:
-                                print(offset_grid[i][j])
-                    '''
+
                     
 
 
