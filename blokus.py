@@ -326,7 +326,10 @@ def main_menu():
                             
                             gx = int(rect.x/block_size)
                             gy = int(rect.y/block_size)
-
+                            
+                            if grid[gy][gx] != (0,0,0):
+                                valid_drag = True
+                            '''
                             if grid[gy][gx] != (0,0,0):
                                 valid_drag = True
 
@@ -348,12 +351,8 @@ def main_menu():
                                             # print(offset_x,offset_y)
                                             offset_grid[b][a][0] = offset_x
                                             offset_grid[b][a][1] = offset_y
-                                '''
-                                for i in range(len(offset_grid)):
-                                    for j in range(len(offset_grid[i])):
-                                        if offset_grid[i][j] != [0,0]:
-                                            #print(offset_grid[i][j])
-                                '''
+                            '''
+
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 down = False
