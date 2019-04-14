@@ -160,9 +160,10 @@ default_shape_positions_player2 = [[36,3], [40,3], [45,4],
                           [37,20],[41,21],[44,19],
                           [36,22],[40,25],[45,25]]
 
-block_rectangles = []
 
 blocks = [None] * 42
+block_rectangles = [[None for _ in range(48)] for _ in range(26)]
+
 
 offset_grid = [[[0,0] for _ in range(48)] for _ in range(26)]
 
@@ -208,7 +209,7 @@ def convert_shape_format(x, y, format):
 def create_rectangles(grid):
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-                block_rectangles.append(pygame.Rect(j*block_size,
+                block_rectangles[i][j] = (pygame.Rect(j*block_size,
                                                     i*block_size, block_size, block_size))
 
 
@@ -254,8 +255,8 @@ def draw_grid(surface, grid):
                     pygame.draw.rect(surface, grid[i][j], (j*block_size + offset_grid[i][j][0],
                                                         i*block_size + offset_grid[i][j][1], block_size, block_size), 0)
 
-                    block_rectangles[i+j] = pygame.Rect(j*block_size + offset_grid[i][j][0],
-                                                        i*block_size + offset_grid[i][j][1], block_size, block_size)
+                    # block_rectangles[i][j] = pygame.Rect(j*block_size + offset_grid[i][j][0],
+                                                        # i*block_size + offset_grid[i][j][1], block_size, block_size)
                                                     
 
     ''' Draws a rectangle the red border '''
@@ -293,7 +294,16 @@ def draw_grid(surface, grid):
 
 
 
+
+
+
+''' Floors a number to nearest 10 '''
+
+def roundup(x):
+    return int(math.floor(x / 10.0)) * 10
+
 def main_menu():
+
     win = pygame.display.set_mode((s_width, s_height))
     running = True
     grid = create_grid(win)
@@ -301,8 +311,9 @@ def main_menu():
     pygame.display.set_caption('Blokus')
     down  = False
     valid_drag = False
-
     collided_rects = []
+
+    rect_positions = []
 
     gx = 0
     gy = 0
@@ -312,6 +323,8 @@ def main_menu():
     rect_x = 0
     rect_y = 0
 
+    block_index = 0
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -320,53 +333,107 @@ def main_menu():
                 if event.button == 1:            
                     print("Mouse Down")
                     down = True
-                    for rect in block_rectangles:
-                        if rect.collidepoint(event.pos):
-                            collided_rects.append(rect)
-                            #print(rect.x)
-                            rect_x = rect.x
-                            rect_y = rect.y
-                            
-                            gx = int(rect.x/block_size)
-                            gy = int(rect.y/block_size)
+                    
+                    ''' Goes over the rectangles list to figure which block the user is about to drag
+                        (x,y (index) of the grid)
+                    '''
 
-                            if grid[gy][gx] != (0,0,0):
-                                valid_drag = True
+                    for i in range(len(block_rectangles)):
+                        for j in range(len(block_rectangles[i])):
+                            rect = block_rectangles[i][j]
+                            if rect.collidepoint(event.pos):
+                                collided_rects.append(rect)
+                                rect_x = rect.x
+                                rect_y = rect.y
+                                
+                                gx = int(rect.x/block_size)
+                                gy = int(rect.y/block_size)
 
+                                if grid[gy][gx] != (0,0,0):
+                                    valid_drag = True
 
 
             elif event.type == pygame.MOUSEBUTTONUP:
-                down = False
-                valid_drag = False
                 print("Mouse Up")
 
+                down = False
+                valid_drag = False
 
+                ''' Changes the new default x,y coordinate of the block object'''
 
+                for i in range(len(block_rectangles)):
+                    for j in range(len(block_rectangles[i])):
+                        rect = block_rectangles[i][j]
+                        if rect.collidepoint(event.pos):
+                            collided_rects.append(rect)
+                            
+                            new_gx = int(rect.x/block_size)
+                            new_gy = int(rect.y/block_size)
+                            
+                            print('Block coordinates')
+                            print(blocks[block_index].x, blocks[block_index].y)
+                            print('Old coordinates')
+                            print(gx,gy)
 
+                            print('New coordinates')
+                            print(new_gx, new_gy)
+
+                b = blocks[block_index]
+                shape_pos = convert_shape_format(b.x,b.y,b.shape[0])
+    
+                ''' 
+                    Resets the previous location of block.
+                    Makes the grid coordinates black in color.
+                '''
+                for i in range(len(shape_pos)):
+                    (x,y) = shape_pos[i]
+                    grid[y][x] = (0,0,0)
+
+                '''
+                    Updates the default positions of the block object.
+                '''
+
+                print(block_index)
+                if block_index<21:
+                    default_shape_positions_player1[block_index][0] += new_gx - gx
+                    default_shape_positions_player1[block_index][1] += new_gy - gy
+                
+                elif block_index>=21:
+                    default_shape_positions_player2[block_index-21][0] += new_gx - gx
+                    default_shape_positions_player2[block_index-21][1] += new_gy - gy
+
+                '''
+                    Resets to offset grid to 0 since it is no longer needed.
+                '''
+                for (a,b) in blocks[block_index].positions:
+                    offset_grid[b][a][0] = 0
+                    offset_grid[b][a][1] = 0
+                
+                print("Unmovable grid")
+                print(default_shape_positions_player2[0])
+  
             elif event.type == pygame.MOUSEMOTION:
                 if down and valid_drag: 
                     print("Mouse Drag") 
+
+                    ''' Uses the grid index to add an offset to every rectangle 
+                    in the block while drag'''
+
                     offset_x = event.pos[0] - rect_x
                     offset_y = event.pos[1] - rect_y
-
-                    # print(offset_x,offset_y)
 
                     offset_grid[gy][gx][0] = offset_x
                     offset_grid[gy][gx][1] = offset_y
 
                     for block in blocks:
                         if (gx,gy) in block.positions:
-                            print(gx,gy)
-                            print(block.positions)
+                            block_index = blocks.index(block)
                             for (a,b) in block.positions:
-                                # print(offset_x,offset_y)
+                                rect_positions.append((a,b))
                                 offset_grid[b][a][0] = offset_x
                                 offset_grid[b][a][1] = offset_y
 
-                    
-
-
-        
+                            
         for i in range(21):
             current_piece = Block(default_shape_positions_player1[i][0],default_shape_positions_player1[i][1], shapes[i],(237,41,57))
             blocks[i] = current_piece
@@ -375,8 +442,7 @@ def main_menu():
     
             for i in range(len(shape_pos)):
                     (x,y) = shape_pos[i]
-
-                    grid[math.floor(y)][math.floor(x)] = current_piece.color
+                    grid[y][x] = current_piece.color
         
         for i in range(21):
             current_piece = Block(default_shape_positions_player2[i][0],default_shape_positions_player2[i][1], shapes[i], (0,0,255))
