@@ -356,61 +356,76 @@ def main_menu():
             elif event.type == pygame.MOUSEBUTTONUP:
                 print("Mouse Up")
 
-                down = False
-                valid_drag = False
+                if valid_drag and down:
 
-                ''' Changes the new default x,y coordinate of the block object'''
+                    ''' Changes the new default x,y coordinate of the block object'''
 
-                for i in range(len(block_rectangles)):
-                    for j in range(len(block_rectangles[i])):
-                        rect = block_rectangles[i][j]
-                        if rect.collidepoint(event.pos):
-                            collided_rects.append(rect)
-                            
-                            new_gx = int(rect.x/block_size)
-                            new_gy = int(rect.y/block_size)
-                            
-                            print('Block coordinates')
-                            print(blocks[block_index].x, blocks[block_index].y)
-                            print('Old coordinates')
-                            print(gx,gy)
+                    for i in range(len(block_rectangles)):
+                        for j in range(len(block_rectangles[i])):
+                            rect = block_rectangles[i][j]
+                            if rect.collidepoint(event.pos):
+                                collided_rects.append(rect)
+                                
+                                new_gx = int(rect.x/block_size)
+                                new_gy = int(rect.y/block_size)
+                                
+                                print('Block coordinates')
+                                print(blocks[block_index].x, blocks[block_index].y)
+                                print('Old coordinates')
+                                print(gx,gy)
 
-                            print('New coordinates')
-                            print(new_gx, new_gy)
+                                print('New coordinates')
+                                print(new_gx, new_gy)
 
-                b = blocks[block_index]
-                shape_pos = convert_shape_format(b.x,b.y,b.shape[0])
-    
-                ''' 
-                    Resets the previous location of block.
-                    Makes the grid coordinates black in color.
-                '''
-                for i in range(len(shape_pos)):
-                    (x,y) = shape_pos[i]
-                    grid[y][x] = (0,0,0)
+                    b = blocks[block_index]
+                    shape_pos = convert_shape_format(b.x,b.y,b.shape[0])
+        
+                    ''' 
+                        Resets the previous location of block.
+                        Makes the grid coordinates black in color.
+                    '''
+                    for i in range(len(shape_pos)):
+                        (x,y) = shape_pos[i]
+                        grid[y][x] = (0,0,0)
 
-                '''
-                    Updates the default positions of the block object.
-                '''
+                    '''
+                        Updates the default positions of the block object.
+                    '''
 
-                print(block_index)
-                if block_index<21:
-                    default_shape_positions_player1[block_index][0] += new_gx - gx
-                    default_shape_positions_player1[block_index][1] += new_gy - gy
-                
-                elif block_index>=21:
-                    default_shape_positions_player2[block_index-21][0] += new_gx - gx
-                    default_shape_positions_player2[block_index-21][1] += new_gy - gy
+                    print(block_index)
+                    if block_index<21:
+                        default_shape_positions_player1[block_index][0] += new_gx - gx
+                        default_shape_positions_player1[block_index][1] += new_gy - gy
+                    
+                    elif block_index>=21:
+                        default_shape_positions_player2[block_index-21][0] += new_gx - gx
+                        default_shape_positions_player2[block_index-21][1] += new_gy - gy
 
-                '''
-                    Resets to offset grid to 0 since it is no longer needed.
-                '''
-                for (a,b) in blocks[block_index].positions:
-                    offset_grid[b][a][0] = 0
-                    offset_grid[b][a][1] = 0
-                
-                print("Unmovable grid")
-                print(default_shape_positions_player2[0])
+                    '''
+                        Resets to offset grid to 0 since it is no longer needed.
+                        Rest everything to base case. 
+                    '''
+                    for (a,b) in blocks[block_index].positions:
+                        offset_grid[b][a][0] = 0
+                        offset_grid[b][a][1] = 0
+                    
+                        collided_rects = []
+
+                        rect_positions = []
+
+                        gx = 0
+                        gy = 0
+                        offset_x = 0
+                        offset_y = 0
+
+                        rect_x = 0
+                        rect_y = 0
+
+                        block_index = 0
+
+                    down = False
+                    valid_drag = False
+
   
             elif event.type == pygame.MOUSEMOTION:
                 if down and valid_drag: 
