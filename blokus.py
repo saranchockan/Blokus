@@ -1,12 +1,10 @@
-''' Make the whole screen a grid. Determine the play grid by checking if a point is inside the border rectangle.  '''
-
 import pygame
 import random
 import math
 
-pygame.font.init()
 
-# GLOBALS VARS
+''' GLOBALS VARS '''
+
 s_width = 1440
 s_height = 780
 play_width = 600  # meaning 300 // 10 = 30 width per block
@@ -164,7 +162,6 @@ default_shape_positions_player2 = [[36,3], [40,3], [45,4],
 blocks = [None] * 42
 block_rectangles = [[None for _ in range(48)] for _ in range(26)]
 
-
 offset_grid = [[[0,0] for _ in range(48)] for _ in range(26)]
 
 
@@ -206,6 +203,8 @@ def convert_shape_format(x, y, format):
     
     return positions
 
+''' Initializes the initital rectangles in the grid'''
+
 def create_rectangles(grid):
     for i in range(len(grid)):
         for j in range(len(grid[i])):
@@ -229,7 +228,6 @@ def create_grid(surface, locked_positions = {}):
 
 
 
-
 def draw_grid(surface, grid):
 
     surface.fill((0, 0, 0))
@@ -238,25 +236,16 @@ def draw_grid(surface, grid):
     sy = top_left_y
 
     '''
-    pygame.draw.rect()
-    draw a rectangle shape
-    rect(Surface, color, Rect, width=0) -> Rect
-
-    -----  Rect argument is (x,y,width, height)
-
-    The below function draws the grid and colors 
+    Draws the grid and colors 
     each rectangle in accordance to the color in each key of grid.
     '''
-    ''' Draws the blocks '''
+
     for i in range(len(grid)):
         for j in range(len(grid[i])):
 
                 if grid[i][j] != (0,0,0):
                     pygame.draw.rect(surface, grid[i][j], (j*block_size + offset_grid[i][j][0],
                                                         i*block_size + offset_grid[i][j][1], block_size, block_size), 0)
-
-                    # block_rectangles[i][j] = pygame.Rect(j*block_size + offset_grid[i][j][0],
-                                                        # i*block_size + offset_grid[i][j][1], block_size, block_size)
                                                     
 
     ''' Draws a rectangle the red border '''
@@ -294,16 +283,13 @@ def draw_grid(surface, grid):
 
 
 
-
-
-
 ''' Floors a number to nearest 10 '''
-
 def roundup(x):
     return int(math.floor(x / 10.0)) * 10
 
 def main_menu():
 
+    pygame.font.init()
     win = pygame.display.set_mode((s_width, s_height))
     running = True
     grid = create_grid(win)
@@ -311,18 +297,17 @@ def main_menu():
     pygame.display.set_caption('Blokus')
     down  = False
     valid_drag = False
+
+    ''' Factors that change the block while on drag on drop '''
+    
     collided_rects = []
-
     rect_positions = []
-
     gx = 0
     gy = 0
     offset_x = 0
     offset_y = 0
-
     rect_x = 0
     rect_y = 0
-
     block_index = 0
 
     while running:
