@@ -163,6 +163,7 @@ blocks = [None] * 42
 block_rectangles = [[None for _ in range(48)] for _ in range(26)]
 
 offset_grid = [[[0,0] for _ in range(48)] for _ in range(26)]
+locked_positions = {}
 
 
 class Block(object):
@@ -282,10 +283,6 @@ def draw_grid(surface, grid):
     pygame.display.update()
 
 
-
-''' Floors a number to nearest 10 '''
-def roundup(x):
-    return int(math.floor(x / 10.0)) * 10
 
 def main_menu():
 
