@@ -292,8 +292,10 @@ def main_menu():
     grid = create_grid(win)
     create_rectangles(grid)
     pygame.display.set_caption('Blokus')
+
     down  = False
     valid_drag = False
+    inside_playarea = False
 
     ''' Factors that change the block while on drag on drop '''
     
@@ -333,12 +335,23 @@ def main_menu():
 
                                 if grid[gy][gx] != (0,0,0):
                                     valid_drag = True
+                            
+
 
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 print("Mouse Up")
 
-                if valid_drag and down:
+                for i in range(len(block_rectangles)):
+                    for j in range(len(block_rectangles[i])):
+                        rect = block_rectangles[i][j]
+                        if rect.collidepoint(event.pos):
+                            if play_border.contains(rect):
+                                inside_playarea = True
+                            
+                print(inside_playarea)
+
+                if valid_drag and down and inside_playarea:
 
                     ''' Changes the new default x,y coordinate of the block object'''
 
@@ -387,26 +400,28 @@ def main_menu():
                         Resets to offset grid to 0 since it is no longer needed.
                         Rest everything to base case. 
                     '''
-                    for (a,b) in blocks[block_index].positions:
-                        offset_grid[b][a][0] = 0
-                        offset_grid[b][a][1] = 0
-                    
-                        collided_rects = []
+                for (a,b) in blocks[block_index].positions:
+                    offset_grid[b][a][0] = 0
+                    offset_grid[b][a][1] = 0
+                
+                    collided_rects = []
 
-                        rect_positions = []
+                    rect_positions = []
 
-                        gx = 0
-                        gy = 0
-                        offset_x = 0
-                        offset_y = 0
+                    gx = 0
+                    gy = 0
+                    offset_x = 0
+                    offset_y = 0
 
-                        rect_x = 0
-                        rect_y = 0
+                    rect_x = 0
+                    rect_y = 0
 
-                        block_index = 0
+                    block_index = 0
 
-                    down = False
-                    valid_drag = False
+                
+                down = False
+                valid_drag = False
+                inside_playarea = False
 
   
             elif event.type == pygame.MOUSEMOTION:
